@@ -8,6 +8,7 @@ import { Media } from "./types";
 
 function App() {
   const [url, setUrl] = React.useState("https://vimeo.com/254947206");
+
   const [medias, setMedias] = React.useState<Media[]>([]);
   const [currentIndex, setCurrentIndex] = React.useState<number>(-1);
   const [isOpen, setOpen] = React.useState(false);
@@ -28,12 +29,13 @@ function App() {
     axios
       .get(`https://noembed.com/embed?url=${url}`)
       .then(({ data }) => {
-        const formatedDate = {
+        const formatedMedia = {
           ...data,
           created_at: formatISO(new Date()).slice(0, 16),
+          keyWords: [],
         } as Media;
 
-        addMedia(formatedDate);
+        addMedia(formatedMedia);
       })
       .catch((err) => {
         console.error("Erreur lors de la récupération du media", err);
@@ -45,12 +47,13 @@ function App() {
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Input
         placeholder="Veuillez saisir une url"
+        inputProps={{ "data-testid": "url-input" }}
         value={url}
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
           setUrl(event.target.value);
         }}
       />
-      <Button disabled={!url} onClick={getMedia}>
+      <Button data-testid="submit-button" disabled={!url} onClick={getMedia}>
         Valider
       </Button>
       <div>

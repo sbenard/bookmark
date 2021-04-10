@@ -1,4 +1,5 @@
 export interface Media {
+  keyWords: string[];
   url: string;
   author_name: string;
   title: string;
