@@ -1,32 +1,13 @@
-import {
-  Avatar,
-  Button,
-  Input,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-} from "@material-ui/core";
-import { Movie, Photo } from "@material-ui/icons";
+import { Button, Input, List } from "@material-ui/core";
 import axios from "axios";
+import { formatISO } from "date-fns";
 import React, { ChangeEvent } from "react";
 import { EditDialog } from "./EditDialog";
-
-export interface Media {
-  author_url: string;
-  author_name: string;
-  title: string;
-  created_at: string;
-  width: number;
-  height: number;
-  type: string;
-  duration?: number;
-}
+import { MediaItem } from "./MediaItem";
+import { Media } from "./types";
 
 function App() {
-  const [url, setUrl] = React.useState(
-    "https://www.youtube.com/watch?v=tRFOjLIl7G0"
-  );
+  const [url, setUrl] = React.useState("https://vimeo.com/254947206");
   const [medias, setMedias] = React.useState<Media[]>([]);
   const [currentIndex, setCurrentIndex] = React.useState<number>(-1);
   const [isOpen, setOpen] = React.useState(false);
@@ -37,6 +18,11 @@ function App() {
   const addMedia = (newMedia: Media) => {
     setMedias([newMedia, ...medias]);
   };
+  const deleteMediaByIndex = (index: number) => {
+    const newMedias = [...medias];
+    newMedias.splice(index, 1);
+    setMedias(newMedias);
+  };
 
   const getMedia = () => {
     axios
@@ -44,35 +30,15 @@ function App() {
       .then(({ data }) => {
         const formatedDate = {
           ...data,
-          created_at: new Date().toLocaleString(),
+          created_at: formatISO(new Date()).slice(0, 16),
         } as Media;
 
-        console.log(data);
-        console.log(formatedDate);
         addMedia(formatedDate);
       })
       .catch((err) => {
-        console.log("error", err);
+        console.error("Erreur lors de la récupération du media", err);
       });
   };
-
-  const MediaItem: React.FC<{ media: Media; index: number }> = ({
-    media,
-    index,
-  }) => (
-    <ListItem
-      button
-      onClick={() => {
-        setCurrentIndex(index);
-        setOpen(true);
-      }}
-    >
-      <ListItemAvatar>
-        <Avatar>{media.type === "video" ? <Movie /> : <Photo />}</Avatar>
-      </ListItemAvatar>
-      <ListItemText primary={media.title} secondary={media.author_name} />
-    </ListItem>
-  );
 
   const isEmpty = !medias.length;
   return (
@@ -94,8 +60,11 @@ function App() {
             {medias.map((media, index) => (
               <MediaItem
                 key={`media-item-${index}`}
+                deleteMediaByIndex={deleteMediaByIndex}
+                setCurrentIndex={setCurrentIndex}
                 media={media}
                 index={index}
+                setOpen={setOpen}
               />
             ))}
           </List>
