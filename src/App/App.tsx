@@ -7,11 +7,18 @@ import { MediaItem } from "./MediaItem";
 import { Media } from "./types";
 
 function App() {
+  const defaultValue = localStorage.medias
+    ? JSON.parse(localStorage.medias)
+    : [];
   const [url, setUrl] = React.useState("https://vimeo.com/254947206");
-
-  const [medias, setMedias] = React.useState<Media[]>([]);
+  const [medias, setMedias] = React.useState<Media[]>(defaultValue);
   const [currentIndex, setCurrentIndex] = React.useState<number>(-1);
   const [isOpen, setOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    localStorage.setItem("medias", JSON.stringify(medias));
+  }, [medias]);
+
   const handleClose = () => {
     setOpen(false);
   };
